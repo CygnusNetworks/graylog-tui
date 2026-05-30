@@ -1,0 +1,30 @@
+Screen {
+    layout: horizontal;
+}
+
+#main-area {
+    layout: vertical;
+    width: 1fr;
+}
+
+#charts-row {
+    layout: horizontal;
+    height: 40%;
+    min-height: 8;
+}
+
+#stream-chart {
+    width: 1fr;
+}
+
+#total-chart {
+    width: 1fr;
+}
+
+#msg-widget {
+    height: 1fr;
+}
+
+StreamsWidget {
+    width: 24;
+}
