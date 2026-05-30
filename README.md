@@ -73,6 +73,8 @@ graylog-tui -H https://graylog.example.com/api --gui
 | `q` / `Esc` | Quit |
 | `Space` | Pause / resume |
 
+> **Text selection:** Mouse capture is off by default, so you can click and drag to select text in the log output and copy it with your terminal's normal copy shortcut (e.g. `Cmd+C`). Use `--mouse` to re-enable Textual mouse mode — required for clicking streams in `--gui`.
+
 ## Options
 
 ```
@@ -83,6 +85,8 @@ graylog-tui -H https://graylog.example.com/api --gui
     --align              Pad source hostnames to equal width
     --poll-interval INT  Poll frequency in milliseconds [default: 1000]
     --insecure           Skip TLS certificate verification
+    --mouse              Enable Textual mouse capture (allows clicking in --gui;
+                         disables native terminal text selection)
     --config PATH        Config file path [default: ~/.graylog_tui]
 -v, --version            Show version and exit
 ```
