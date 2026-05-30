@@ -1,5 +1,10 @@
 # graylog-tui
 
+[![CI](https://github.com/CygnusNetworks/graylog-tui/actions/workflows/ci.yml/badge.svg)](https://github.com/CygnusNetworks/graylog-tui/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue)](https://www.python.org/)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
 Terminal dashboard for Graylog — full-screen TUI by default, plain text when piped.
 
 Inspired by [graylog-labs/cli-dashboard](https://github.com/graylog-labs/cli-dashboard), rewritten in Python with [Textual](https://github.com/Textualize/textual).
