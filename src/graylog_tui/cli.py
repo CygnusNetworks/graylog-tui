@@ -74,6 +74,10 @@ def main(
     align: bool = typer.Option(False, "--align", help="Pad source hostnames to equal width"),
     poll_interval: int | None = typer.Option(None, "--poll-interval", help="Poll frequency ms"),
     insecure: bool = typer.Option(False, "--insecure", help="Skip TLS verification"),
+    mouse: bool = typer.Option(
+        False, "--mouse/--no-mouse",
+        help="Enable Textual mouse capture (disables native terminal text selection)"
+    ),
     config_file: Path | None = typer.Option(None, "--config", help="Config file path"),
     version: bool | None = typer.Option(
         None, "--version", "-v", callback=_version_callback, is_eager=True, help="Show version"
@@ -133,10 +137,10 @@ def main(
     try:
         if gui:
             from graylog_tui.tui.app import GraylogDashboard
-            GraylogDashboard(client, effective_poll_ms, align=align).run()
+            GraylogDashboard(client, effective_poll_ms, align=align).run(mouse=mouse)
         elif sys.stdout.isatty():
             from graylog_tui.tui.app_logs import LogsOnlyApp
-            LogsOnlyApp(client, effective_poll_ms, align=align).run()
+            LogsOnlyApp(client, effective_poll_ms, align=align).run(mouse=mouse)
         else:
             run_plain(client, effective_poll_ms, align=align)
     finally:

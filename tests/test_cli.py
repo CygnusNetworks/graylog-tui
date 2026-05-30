@@ -50,7 +50,7 @@ def test_logs_only_tui_when_tty(tmp_path: Path) -> None:
         mock_sys.stdout.isatty.return_value = True
         mock_sys.exit = MagicMock(side_effect=SystemExit)
         runner.invoke(app, ["--config", str(cfg), "--stream-id", "s1"])
-        mock_app.run.assert_called_once()
+        mock_app.run.assert_called_once_with(mouse=False)
 
 
 def test_gui_flag_dispatches_to_dashboard(tmp_path: Path) -> None:
@@ -62,6 +62,7 @@ def test_gui_flag_dispatches_to_dashboard(tmp_path: Path) -> None:
     ):
         mock_app.run.return_value = None
         runner.invoke(app, ["--config", str(cfg), "--gui"])
+        mock_app.run.assert_called_once_with(mouse=False)
 
 
 def test_no_stream_id_exits_without_gui(tmp_path: Path) -> None:
@@ -70,6 +71,31 @@ def test_no_stream_id_exits_without_gui(tmp_path: Path) -> None:
         result = runner.invoke(app, ["--config", str(cfg)])
     assert result.exit_code == 1
     assert "stream" in result.output.lower()
+
+
+def test_logs_only_tui_passes_mouse_true_when_flag_set(tmp_path: Path) -> None:
+    cfg = make_config_file(tmp_path)
+    mock_app = MagicMock()
+    with (
+        patch("graylog_tui.cli.GraylogClient"),
+        patch("graylog_tui.cli.sys") as mock_sys,
+        patch("graylog_tui.tui.app_logs.LogsOnlyApp", return_value=mock_app),
+    ):
+        mock_sys.stdout.isatty.return_value = True
+        mock_sys.exit = MagicMock(side_effect=SystemExit)
+        runner.invoke(app, ["--config", str(cfg), "--stream-id", "s1", "--mouse"])
+        mock_app.run.assert_called_once_with(mouse=True)
+
+
+def test_gui_passes_mouse_true_when_flag_set(tmp_path: Path) -> None:
+    cfg = make_config_file(tmp_path)
+    mock_app = MagicMock()
+    with (
+        patch("graylog_tui.cli.GraylogClient"),
+        patch("graylog_tui.tui.app.GraylogDashboard", return_value=mock_app),
+    ):
+        runner.invoke(app, ["--config", str(cfg), "--gui", "--mouse"])
+        mock_app.run.assert_called_once_with(mouse=True)
 
 
 def test_stream_title_resolved(tmp_path: Path) -> None:
