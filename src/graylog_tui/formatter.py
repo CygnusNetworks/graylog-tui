@@ -1,14 +1,8 @@
 from __future__ import annotations
 
-import sys
-
 from rich.text import Text
 
 from graylog_tui.client import Message
-
-
-def detect_color() -> bool:
-    return sys.stdout.isatty()
 
 
 def plain_line(msg: Message, source_width: int = 0) -> str:

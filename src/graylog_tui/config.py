@@ -7,8 +7,16 @@ import yaml
 
 DEFAULT_CONFIG_PATH = Path.home() / ".graylog_tui"
 
+DEFAULT_FIELDS = "timestamp,message,source,orig_timestamp"
+DEFAULT_RANGE_SECONDS = 300
+DEFAULT_POLL_INTERVAL_MS = 1000
+
 
 class ConfigError(Exception):
+    pass
+
+
+class ConfigFileNotFoundError(ConfigError):
     pass
 
 
@@ -17,12 +25,12 @@ class GraylogConfig:
     host: str | None
     username: str
     password: str
-    poll_interval_ms: int = 1000
+    poll_interval_ms: int = DEFAULT_POLL_INTERVAL_MS
     insecure: bool = False
     stream_title: str | None = None
     query: str = "*"
-    fields: str = "timestamp,message,source,orig_timestamp"
-    range_seconds: int = 300
+    fields: str = DEFAULT_FIELDS
+    range_seconds: int = DEFAULT_RANGE_SECONDS
 
 
 def load_config(path: Path | None = None) -> GraylogConfig:
@@ -30,7 +38,7 @@ def load_config(path: Path | None = None) -> GraylogConfig:
     try:
         raw = config_path.read_text()
     except FileNotFoundError:
-        raise ConfigError(f"Config file not found: {config_path}") from None
+        raise ConfigFileNotFoundError(f"Config file not found: {config_path}") from None
     except OSError as e:
         raise ConfigError(f"Cannot read config file {config_path}: {e}") from e
 
@@ -51,10 +59,12 @@ def load_config(path: Path | None = None) -> GraylogConfig:
         host=str(raw_host).rstrip("/") if raw_host else None,
         username=str(data["username"]),
         password=str(data["password"]),
-        poll_interval_ms=int(data.get("poll-interval") or data.get("poll_interval_ms") or 1000),
+        poll_interval_ms=int(
+            data.get("poll-interval") or data.get("poll_interval_ms") or DEFAULT_POLL_INTERVAL_MS
+        ),
         insecure=bool(data.get("insecure", False)),
         stream_title=data.get("stream-title") or data.get("stream_title"),
         query=str(data.get("query", "*")),
-        fields=str(data.get("fields", "timestamp,message,source,orig_timestamp")),
-        range_seconds=int(data.get("range", 300)),
+        fields=str(data.get("fields", DEFAULT_FIELDS)),
+        range_seconds=int(data.get("range", DEFAULT_RANGE_SECONDS)),
     )

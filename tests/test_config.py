@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from graylog_tui.config import ConfigError, load_config
+from graylog_tui.config import ConfigError, ConfigFileNotFoundError, load_config
 
 
 def write_config(tmp_path: Path, content: str) -> Path:
@@ -43,7 +43,7 @@ def test_load_config_optional_fields(tmp_path: Path) -> None:
 
 
 def test_load_config_file_not_found() -> None:
-    with pytest.raises(ConfigError, match="not found"):
+    with pytest.raises(ConfigFileNotFoundError, match="not found"):
         load_config(Path("/nonexistent/path/.graylog_tui"))
 
 

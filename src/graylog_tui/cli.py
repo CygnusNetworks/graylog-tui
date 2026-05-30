@@ -7,7 +7,15 @@ import typer
 
 from graylog_tui import __version__
 from graylog_tui.client import GraylogAuthError, GraylogClient, GraylogError
-from graylog_tui.config import ConfigError, GraylogConfig, load_config
+from graylog_tui.config import (
+    DEFAULT_FIELDS,
+    DEFAULT_POLL_INTERVAL_MS,
+    DEFAULT_RANGE_SECONDS,
+    ConfigError,
+    ConfigFileNotFoundError,
+    GraylogConfig,
+    load_config,
+)
 from graylog_tui.modes.plain import run_plain
 
 app = typer.Typer(name="graylog-tui", add_completion=False, pretty_exceptions_enable=False)
@@ -74,9 +82,14 @@ def main(
     cfg: GraylogConfig | None = None
     try:
         cfg = load_config(config_file)
-    except ConfigError:
-        if not host:
-            pass  # will error below if host still missing
+    except ConfigFileNotFoundError as e:
+        if config_file is not None:
+            typer.echo(f"ERROR: {e}", err=True)
+            raise typer.Exit(1) from None
+        # Default config absent — CLI args may supply what's needed
+    except ConfigError as e:
+        typer.echo(f"ERROR: {e}", err=True)
+        raise typer.Exit(1) from None
 
     effective_host = host or (cfg.host if cfg else None)
     if not effective_host:
@@ -89,7 +102,7 @@ def main(
         typer.echo("ERROR: username and password must be set in config file", err=True)
         raise typer.Exit(1)
 
-    effective_poll_ms = poll_interval or (cfg.poll_interval_ms if cfg else 1000)
+    effective_poll_ms = poll_interval or (cfg.poll_interval_ms if cfg else DEFAULT_POLL_INTERVAL_MS)
     effective_insecure = insecure or (cfg.insecure if cfg else False)
 
     client = GraylogClient(
@@ -98,8 +111,8 @@ def main(
         password=effective_password,
         insecure=effective_insecure,
         query=cfg.query if cfg else "*",
-        fields=cfg.fields if cfg else "timestamp,message,source,orig_timestamp",
-        range_seconds=cfg.range_seconds if cfg else 300,
+        fields=cfg.fields if cfg else DEFAULT_FIELDS,
+        range_seconds=cfg.range_seconds if cfg else DEFAULT_RANGE_SECONDS,
     )
 
     effective_stream_id = _resolve_stream(

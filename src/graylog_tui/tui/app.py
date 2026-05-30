@@ -40,7 +40,7 @@ class GraylogDashboard(App[None]):
                 with Horizontal(id="charts-row"):
                     yield ThroughputWidget("Stream", color="red", id="stream-chart")
                     yield ThroughputWidget("Total", color="green", id="total-chart")
-                yield MessageLogWidget(id="msg-widget")
+                yield MessageLogWidget(align=self._align, id="msg-widget")
             yield StreamsWidget(id="streams-widget")
 
     def on_mount(self) -> None:
@@ -69,10 +69,11 @@ class GraylogDashboard(App[None]):
 
         messages_result, total_tp_result, stream_tp_result = results
 
-        if isinstance(messages_result, GraylogAuthError):
-            self.notify("Authentication failed", severity="error", timeout=0)
-            self.exit()
-            return
+        for result in results:
+            if isinstance(result, GraylogAuthError):
+                self.notify("Authentication failed", severity="error", timeout=0)
+                self.exit()
+                return
 
         for result in results:
             if isinstance(result, GraylogError):
