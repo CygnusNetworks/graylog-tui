@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -21,7 +20,7 @@ def _version_callback(value: bool) -> None:
 
 
 def _resolve_stream(
-    client: GraylogClient, stream_id: Optional[str], stream_title: Optional[str]
+    client: GraylogClient, stream_id: str | None, stream_title: str | None
 ) -> str | None:
     if stream_id:
         return stream_id
@@ -31,10 +30,10 @@ def _resolve_stream(
         streams = client.fetch_streams()
     except GraylogAuthError as e:
         typer.echo(f"ERROR: {e}", err=True)
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
     except GraylogError as e:
         typer.echo(f"ERROR fetching streams: {e}", err=True)
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     title_lower = stream_title.lower()
     for stream in streams:
@@ -58,15 +57,17 @@ def _resolve_stream(
 
 @app.command()
 def main(
-    host: Optional[str] = typer.Option(None, "--host", "-H", help="Graylog base URL"),
-    stream_id: Optional[str] = typer.Option(None, "--stream-id", "-s", help="Stream UUID"),
-    stream_title: Optional[str] = typer.Option(None, "--stream-title", help="Stream title (fuzzy)"),
-    gui: bool = typer.Option(False, "--gui", "-g", help="Full dashboard TUI with charts and stream selector"),
+    host: str | None = typer.Option(None, "--host", "-H", help="Graylog base URL"),
+    stream_id: str | None = typer.Option(None, "--stream-id", "-s", help="Stream UUID"),
+    stream_title: str | None = typer.Option(None, "--stream-title", help="Stream title (fuzzy)"),
+    gui: bool = typer.Option(
+        False, "--gui", "-g", help="Full dashboard TUI with charts and stream selector"
+    ),
     align: bool = typer.Option(False, "--align", help="Pad source hostnames to equal width"),
-    poll_interval: Optional[int] = typer.Option(None, "--poll-interval", help="Poll frequency ms"),
+    poll_interval: int | None = typer.Option(None, "--poll-interval", help="Poll frequency ms"),
     insecure: bool = typer.Option(False, "--insecure", help="Skip TLS verification"),
-    config_file: Optional[Path] = typer.Option(None, "--config", help="Config file path"),
-    version: Optional[bool] = typer.Option(
+    config_file: Path | None = typer.Option(None, "--config", help="Config file path"),
+    version: bool | None = typer.Option(
         None, "--version", "-v", callback=_version_callback, is_eager=True, help="Show version"
     ),
 ) -> None:

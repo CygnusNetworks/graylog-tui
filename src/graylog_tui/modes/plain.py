@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 import time
 
-from graylog_tui.client import GraylogAuthError, GraylogClient, GraylogError, Message
+from graylog_tui.client import GraylogAuthError, GraylogClient, GraylogError
 from graylog_tui.formatter import plain_line
 
 

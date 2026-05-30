@@ -35,7 +35,7 @@ def test_plain_mode_when_not_tty(tmp_path: Path) -> None:
         patch("graylog_tui.cli.GraylogClient"),
     ):
         mock_plain.side_effect = SystemExit(0)
-        result = runner.invoke(app, ["--config", str(cfg), "--stream-id", "s1"])
+        runner.invoke(app, ["--config", str(cfg), "--stream-id", "s1"])
         mock_plain.assert_called_once()
 
 

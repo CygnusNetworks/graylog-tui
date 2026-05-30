@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from graylog_tui.config import ConfigError, GraylogConfig, load_config
+from graylog_tui.config import ConfigError, load_config
 
 
 def write_config(tmp_path: Path, content: str) -> Path:
@@ -12,7 +12,9 @@ def write_config(tmp_path: Path, content: str) -> Path:
 
 
 def test_load_config_happy_path(tmp_path: Path) -> None:
-    p = write_config(tmp_path, "host: https://graylog.example.com\nusername: admin\npassword: secret\n")
+    p = write_config(
+        tmp_path, "host: https://graylog.example.com\nusername: admin\npassword: secret\n"
+    )
     cfg = load_config(p)
     assert cfg.host == "https://graylog.example.com"
     assert cfg.username == "admin"
@@ -31,7 +33,8 @@ def test_load_config_strips_trailing_slash(tmp_path: Path) -> None:
 def test_load_config_optional_fields(tmp_path: Path) -> None:
     p = write_config(
         tmp_path,
-        "host: https://gl.local\nusername: u\npassword: p\npoll-interval: 2000\ninsecure: true\nstream-title: My Stream\n",
+        "host: https://gl.local\nusername: u\npassword: p\n"
+        "poll-interval: 2000\ninsecure: true\nstream-title: My Stream\n",
     )
     cfg = load_config(p)
     assert cfg.poll_interval_ms == 2000

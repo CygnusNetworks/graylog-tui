@@ -45,7 +45,7 @@ class LogsOnlyApp(App[None]):
             messages = await asyncio.to_thread(self._client.fetch_messages)
         except GraylogAuthError as e:
             self.notify(str(e), severity="error", timeout=5)
-            self.exit(1)
+            self.exit()
             return
         except GraylogError as e:
             self.notify(str(e), severity="warning", timeout=3)

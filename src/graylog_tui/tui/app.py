@@ -71,7 +71,7 @@ class GraylogDashboard(App[None]):
 
         if isinstance(messages_result, GraylogAuthError):
             self.notify("Authentication failed", severity="error", timeout=0)
-            self.exit(1)
+            self.exit()
             return
 
         for result in results:

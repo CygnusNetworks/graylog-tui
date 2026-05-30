@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
-
 
 DEFAULT_CONFIG_PATH = Path.home() / ".graylog_tui"
 
@@ -31,14 +30,14 @@ def load_config(path: Path | None = None) -> GraylogConfig:
     try:
         raw = config_path.read_text()
     except FileNotFoundError:
-        raise ConfigError(f"Config file not found: {config_path}")
+        raise ConfigError(f"Config file not found: {config_path}") from None
     except OSError as e:
-        raise ConfigError(f"Cannot read config file {config_path}: {e}")
+        raise ConfigError(f"Cannot read config file {config_path}: {e}") from e
 
     try:
         data = yaml.safe_load(raw)
     except yaml.YAMLError as e:
-        raise ConfigError(f"Invalid YAML in {config_path}: {e}")
+        raise ConfigError(f"Invalid YAML in {config_path}: {e}") from e
 
     if not isinstance(data, dict):
         raise ConfigError(f"Config file {config_path} must contain a YAML mapping")
@@ -52,7 +51,7 @@ def load_config(path: Path | None = None) -> GraylogConfig:
         host=str(raw_host).rstrip("/") if raw_host else None,
         username=str(data["username"]),
         password=str(data["password"]),
-        poll_interval_ms=int(data.get("poll-interval", data.get("poll_interval_ms", 1000))),
+        poll_interval_ms=int(data.get("poll-interval") or data.get("poll_interval_ms") or 1000),
         insecure=bool(data.get("insecure", False)),
         stream_title=data.get("stream-title") or data.get("stream_title"),
         query=str(data.get("query", "*")),
