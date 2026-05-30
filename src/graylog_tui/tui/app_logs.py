@@ -30,7 +30,7 @@ class LogsOnlyApp(App[None]):
         self._paused = False
 
     def compose(self) -> ComposeResult:
-        yield MessageLogWidget(id="msg-widget")
+        yield MessageLogWidget(align=self._align, id="msg-widget")
 
     def on_mount(self) -> None:
         widget = self.query_one(MessageLogWidget)

@@ -5,6 +5,8 @@ from typing import Any
 
 import httpx
 
+from graylog_tui.config import DEFAULT_FIELDS, DEFAULT_RANGE_SECONDS
+
 
 class GraylogError(Exception):
     pass
@@ -50,8 +52,8 @@ class GraylogClient:
         password: str,
         insecure: bool = False,
         query: str = "*",
-        fields: str = "timestamp,message,source,orig_timestamp",
-        range_seconds: int = 300,
+        fields: str = DEFAULT_FIELDS,
+        range_seconds: int = DEFAULT_RANGE_SECONDS,
     ) -> None:
         self.stream_id: str | None = None
         self._query = query
@@ -92,7 +94,7 @@ class GraylogClient:
 
         try:
             return resp.json()
-        except Exception as e:
+        except ValueError as e:
             raise GraylogAPIError(f"Graylog returned invalid JSON: {e}") from e
 
     def fetch_streams(self) -> list[GraylogStream]:

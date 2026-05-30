@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections import deque
+
 from textual.app import ComposeResult
 from textual.message import Message as TextualMessage
 from textual.widget import Widget
@@ -29,24 +31,22 @@ class ThroughputWidget(Widget):
         super().__init__(**kwargs)  # type: ignore[arg-type]
         self._title = title
         self._color = color
-        self._data: list[float] = [0.0] * 60
+        self._data: deque[float] = deque([0.0] * 60, maxlen=60)
 
     def compose(self) -> ComposeResult:
         yield Label(f"{self._title}: 0.0 msg/s", id="throughput-label")
-        yield Sparkline(data=self._data, summary_function=max)
+        yield Sparkline(data=list(self._data), summary_function=max)
 
     def push_value(self, value: float) -> None:
         self._data.append(value)
-        if len(self._data) > 60:
-            self._data = self._data[-60:]
         self.query_one("#throughput-label", Label).update(
             f"{self._title}: {value:.1f} msg/s"
         )
-        self.query_one(Sparkline).data = self._data
+        self.query_one(Sparkline).data = list(self._data)
 
     def clear(self) -> None:
-        self._data = [0.0] * 60
-        self.query_one(Sparkline).data = self._data
+        self._data = deque([0.0] * 60, maxlen=60)
+        self.query_one(Sparkline).data = list(self._data)
 
 
 class StreamsWidget(Widget):
@@ -81,9 +81,14 @@ class StreamsWidget(Widget):
         self._streams = streams
         lv = self.query_one("#stream-list", ListView)
         lv.clear()
-        for stream in streams:
+        active_index = None
+        for i, stream in enumerate(streams):
             item = ListItem(Label(stream.title[:22]), id=f"stream-{stream.id}")
             lv.append(item)
+            if stream.id == active_id:
+                active_index = i
+        if active_index is not None:
+            lv.index = active_index
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         if event.item.id:
@@ -105,8 +110,9 @@ class MessageLogWidget(Widget):
     }
     """
 
-    def __init__(self, **kwargs: object) -> None:
+    def __init__(self, align: bool = True, **kwargs: object) -> None:
         super().__init__(**kwargs)  # type: ignore[arg-type]
+        self._align = align
         self._source_width = 0
 
     def compose(self) -> ComposeResult:
@@ -115,12 +121,13 @@ class MessageLogWidget(Widget):
     def add_messages(self, messages: list[GraylogMessage]) -> None:
         if not messages:
             return
-        max_sw = max(len(m.source) for m in messages)
-        if max_sw > self._source_width:
-            self._source_width = max_sw
+        if self._align:
+            max_sw = max(len(m.source) for m in messages)
+            if max_sw > self._source_width:
+                self._source_width = max_sw
         log = self.query_one("#msg-log", RichLog)
         for msg in messages:
-            rendered = format_message(msg, self._source_width, color=True)
+            rendered = format_message(msg, self._source_width if self._align else 0, color=True)
             log.write(rendered)
 
     def clear(self) -> None:
