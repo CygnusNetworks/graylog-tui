@@ -4,6 +4,14 @@ Terminal dashboard for Graylog — full-screen TUI by default, plain text when p
 
 Inspired by [graylog-labs/cli-dashboard](https://github.com/graylog-labs/cli-dashboard), rewritten in Python with [Textual](https://github.com/Textualize/textual).
 
+**Log tail** (default — `graylog-tui -H ... -s <stream-id>`):
+
+![Log tail mode](docs/screenshot-logs.svg)
+
+**Dashboard** (`--gui` — charts + interactive stream selector):
+
+![Dashboard mode](docs/screenshot-dashboard.svg)
+
 ## Installation
 
 ```bash
